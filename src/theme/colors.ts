@@ -15,5 +15,3 @@ export const COLORS = {
   black: "#010101",
   borderCard: "#9a9a9a",
 } as const;
-
-export type ColorToken = keyof typeof COLORS;
