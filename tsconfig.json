@@ -4,6 +4,5 @@
     "composite": true,
     "esModuleInterop": true
   },
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
-  "include": ["src/types"]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
