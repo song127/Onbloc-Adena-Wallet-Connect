@@ -125,7 +125,11 @@ const Home = (): ReactElement => {
       addToast({ type: "success", title: MSG.SUCCESS.TX_SUCCESS, message: `${MSG.UI.TX_HASH} ${res.txHash}` });
     } catch (e: any) {
       const err = e as AppError;
-      addToast({ type: "failed", message: err.userMessage || e.message || MSG.ERROR.UNKNOWN });
+      addToast({
+        type: "failed",
+        title: MSG.ERROR.TX_FAILED,
+        message: err.userMessage || e.message || MSG.ERROR.UNKNOWN,
+      });
     } finally {
       setIsSending(false);
     }

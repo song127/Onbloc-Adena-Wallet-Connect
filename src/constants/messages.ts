@@ -1,19 +1,19 @@
 // === src/constants/messages.ts ===
 export const MSG = {
   ERROR: {
-    ADENA_NOT_INSTALLED: "Adena Wallet is not installed.",
-    NETWORK_FETCH_FAILED: "Failed to fetch network information.",
-    ACCOUNT_FETCH_FAILED: "Failed to fetch account information.",
-    TX_FAILED: "Failed to send GNOT.",
-    UNKNOWN: "An unknown error occurred.",
-    FIELDS_REQUIRED: "All fields are required.",
-    CONNECTION_FAILED: "Failed to connect to Adena Wallet.",
+    ADENA_NOT_INSTALLED: "Adena Wallet is not installed",
+    NETWORK_FETCH_FAILED: "Failed to fetch network information",
+    ACCOUNT_FETCH_FAILED: "Failed to fetch account information",
+    TX_FAILED: "Transaction Failed",
+    UNKNOWN: "An unknown error occurred",
+    FIELDS_REQUIRED: "All fields are required",
+    CONNECTION_FAILED: "Failed to connect to Adena Wallet",
   },
   SUCCESS: {
-    WALLET_CONNECTED: "Wallet connected.",
-    ADDRESS_LOADED: "Address loaded.",
-    BALANCE_LOADED: "Balance loaded.",
-    TX_SUCCESS: "Transaction succeeded.",
+    WALLET_CONNECTED: "Wallet connected",
+    ADDRESS_LOADED: "Address loaded",
+    BALANCE_LOADED: "Balance loaded",
+    TX_SUCCESS: "Transaction Success",
   },
   UI: {
     CONNECT: "Connect",

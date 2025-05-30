@@ -190,10 +190,12 @@ export function useAdena() {
             },
           ],
         });
+
         if (!checkResponse(res) || !res.data.hash)
           throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, res?.message || MSG.ERROR.TX_FAILED);
         return { txHash: res.data.hash };
       } catch (e: any) {
+        console.log(e);
         throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, e?.message || MSG.ERROR.TX_FAILED, e);
       }
     },
