@@ -6,7 +6,9 @@
 import { useState, useEffect, useCallback } from "react";
 
 import { useWalletStore } from "@/store/wallet";
-import { PORTAL_LOOP_NETWORK_CONFIG } from "@/config";
+import { PORTAL_LOOP_NETWORK_CONFIG } from "@/constants/config";
+import { ErrorCode, createAppError } from "@/types/AppError";
+import { MSG } from "@/constants/messages";
 
 /**
  * AdenaAccount - Adena 계정 정보
@@ -47,7 +49,11 @@ export function useAdena() {
   /**
    * window.adena 객체 반환
    */
-  const getAdena = () => window.adena;
+  const getAdena = () => {
+    if (!window.adena)
+      throw createAppError(ErrorCode.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED);
+    return window.adena;
+  };
 
   /**
    * 네트워크 정보 조회
@@ -56,9 +62,9 @@ export function useAdena() {
    */
   const getNetwork = useCallback(async (): Promise<{ chainId: string }> => {
     const adena = getAdena();
-    if (!adena) throw new Error("Adena Wallet not installed");
     const res = await adena.GetNetwork();
-    if (!checkResponse(res) || !res.data.chainId) throw new Error("네트워크 정보 조회 실패");
+    if (!checkResponse(res) || !res.data.chainId)
+      throw createAppError(ErrorCode.NETWORK_ERROR, MSG.ERROR.NETWORK_FETCH_FAILED, MSG.ERROR.NETWORK_FETCH_FAILED);
     return { chainId: res.data.chainId };
   }, []);
 
@@ -70,7 +76,8 @@ export function useAdena() {
    */
   const switchNetwork = useCallback(async (chainId: string): Promise<void> => {
     const adena = getAdena();
-    if (!adena) throw new Error("Adena Wallet not installed");
+    if (!adena)
+      throw createAppError(ErrorCode.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED);
     await adena.SwitchNetwork({ chainId });
   }, []);
 
@@ -81,7 +88,8 @@ export function useAdena() {
    */
   const addNetwork = useCallback(async (): Promise<void> => {
     const adena = getAdena();
-    if (!adena) throw new Error("Adena Wallet not installed");
+    if (!adena)
+      throw createAppError(ErrorCode.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED, MSG.ERROR.ADENA_NOT_INSTALLED);
     await adena.AddNetwork({
       chainId: PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID,
       chainName: PORTAL_LOOP_NETWORK_CONFIG.CHAIN_NAME,
@@ -96,10 +104,8 @@ export function useAdena() {
    */
   const connect = useCallback(async () => {
     const adena = getAdena();
-    if (!adena) throw new Error("Adena Wallet not installed");
     // 1. Establish
     const establishRes = await adena.AddEstablish("Adena");
-
     if (checkResponse(establishRes)) {
       setIsConnected(true);
       setIsWalletConnected(true);
@@ -108,6 +114,11 @@ export function useAdena() {
       setIsWalletConnected(true);
     } else {
       setIsConnected(false);
+      throw createAppError(
+        ErrorCode.ADENA_NOT_INSTALLED,
+        MSG.ERROR.CONNECTION_FAILED,
+        establishRes?.message || MSG.ERROR.CONNECTION_FAILED,
+      );
     }
     // 2. 네트워크 확인/전환
     const network = await getNetwork();
@@ -129,9 +140,9 @@ export function useAdena() {
    */
   const getAccount = useCallback(async (): Promise<AdenaAccount> => {
     const adena = getAdena();
-    if (!adena) throw new Error("Adena Wallet not installed");
     const res = await adena.GetAccount();
-    if (!checkResponse(res) || !res.data.address || !res.data.coins) throw new Error("계정 정보 조회 실패");
+    if (!checkResponse(res) || !res.data.address || !res.data.coins)
+      throw createAppError(ErrorCode.NETWORK_ERROR, MSG.ERROR.ACCOUNT_FETCH_FAILED, MSG.ERROR.ACCOUNT_FETCH_FAILED);
     return { address: res.data.address, coins: res.data.coins.replace("ugnot", "") };
   }, []);
 
@@ -164,11 +175,8 @@ export function useAdena() {
   const sendTokens = useCallback(
     async (from: string, to: string, amount: string | number): Promise<{ txHash: string }> => {
       const adena = getAdena();
-      if (!adena) throw new Error("Adena Wallet not installed");
-
       // GNOT → ugnot 변환 (1 GNOT = 1,000,000 ugnot)
       const microAmount = Math.floor(Number(amount) * 1_000_000).toString();
-
       try {
         const res = await adena.DoContract({
           messages: [
@@ -182,11 +190,11 @@ export function useAdena() {
             },
           ],
         });
-
-        if (!checkResponse(res) || !res.data.hash) throw new Error("Transaction failed");
+        if (!checkResponse(res) || !res.data.hash)
+          throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, res?.message || MSG.ERROR.TX_FAILED);
         return { txHash: res.data.hash };
       } catch (e: any) {
-        throw new Error(e?.message || "Transaction failed");
+        throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, e?.message || MSG.ERROR.TX_FAILED, e);
       }
     },
     [],
@@ -204,7 +212,7 @@ export function useAdena() {
         if (tries > 5) {
           clearInterval(interval);
           setIsLoading(false);
-          alert("Adena Wallet not installed");
+          alert(MSG.ERROR.ADENA_NOT_INSTALLED);
         }
       }
     }, 10);
@@ -345,20 +353,3 @@ export function useAdena() {
     addNetwork,
   };
 }
-
-// === DOCS ===
-/**
- * - Adena Wallet 연동 커스텀 훅
- * - 연결/계정/네트워크/잔고/전송 등 지원
- * - 상태/메서드 반환
- */
-// === SELF-REVIEW ===
-/**
- * ① Code Quality: 타입 명확, 단일 책임, 불필요 코드 없음
- * ② Flexibility: 다양한 네트워크/계정/전송 지원
- * ③ Scalability: 기능 추가 용이
- * ④ Maintainability: 구조 단순, 주석/문서화
- * ⑤ Readability: 네이밍/포맷 일관, 3-Tier 주석
- * ⑥ Abstraction: 상태/액션/네트워크 분리
- * ⑦ Security: PII 없음, 예외 처리
- */

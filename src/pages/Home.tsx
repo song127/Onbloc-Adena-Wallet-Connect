@@ -13,6 +13,8 @@ import { useAdena } from "@/hooks/useAdena";
 import Gap from "@/components/util/Gap";
 import BasicInput from "@/components/common/BasicInput";
 import Spinner from "@/components/common/Spinner";
+import type { AppError } from "@/types/AppError";
+import { MSG } from "@/constants/messages";
 
 /**
  * Home - Adena Wallet 연동 및 Gno.land 토큰 전송 메인 페이지
@@ -58,16 +60,17 @@ const Home = (): ReactElement => {
     try {
       const res = await connect();
       if (res && res.code === 0) {
-        addToast({ type: "success", message: "Wallet connected" });
+        addToast({ type: "success", message: MSG.SUCCESS.WALLET_CONNECTED });
       } else if (res && typeof res.message === "string" && res.message.toLowerCase().includes("already")) {
         return;
       } else {
-        throw new Error(res?.message || "Adena connection failed");
+        addToast({ type: "failed", message: MSG.ERROR.CONNECTION_FAILED });
       }
     } catch (e: any) {
       setAddress(null);
-      setError(e.message);
-      addToast({ type: "failed", message: e.message });
+      const err = e as AppError;
+      setError(err.userMessage || e.message || MSG.ERROR.UNKNOWN);
+      addToast({ type: "failed", message: err.userMessage || e.message || MSG.ERROR.UNKNOWN });
     }
   }, [connect, addToast, setAddress, setError]);
 
@@ -79,11 +82,12 @@ const Home = (): ReactElement => {
     try {
       const addr = await getAddress();
       setAddress(addr);
-      addToast({ type: "success", message: "Address loaded" });
+      addToast({ type: "success", message: MSG.SUCCESS.ADDRESS_LOADED });
     } catch (e: any) {
       setAddress(null);
-      setError(e.message);
-      addToast({ type: "failed", message: e.message });
+      const err = e as AppError;
+      setError(err.userMessage || e.message || MSG.ERROR.UNKNOWN);
+      addToast({ type: "failed", message: err.userMessage || e.message || MSG.ERROR.UNKNOWN });
     } finally {
       setIsLoadingAddress(false);
     }
@@ -97,10 +101,11 @@ const Home = (): ReactElement => {
     try {
       const amount = await getBalance();
       setBalance(amount);
-      addToast({ type: "success", message: "Balance loaded" });
+      addToast({ type: "success", message: MSG.SUCCESS.BALANCE_LOADED });
     } catch (e: any) {
       setBalance(null);
-      addToast({ type: "failed", message: e.message });
+      const err = e as AppError;
+      addToast({ type: "failed", message: err.userMessage || e.message || MSG.ERROR.UNKNOWN });
     } finally {
       setIsLoadingBalance(false);
     }
@@ -113,14 +118,14 @@ const Home = (): ReactElement => {
     setIsSending(true);
     try {
       if (!address || !recipient || !sendAmount) {
-        addToast({ type: "failed", message: "All fields are required." });
+        addToast({ type: "failed", message: MSG.ERROR.FIELDS_REQUIRED });
         return;
       }
       const res = await sendTokens(address, recipient, sendAmount);
-      addToast({ type: "success", title: "Transaction Success", message: `txHash: ${res.txHash}` });
+      addToast({ type: "success", title: MSG.SUCCESS.TX_SUCCESS, message: `${MSG.UI.TX_HASH} ${res.txHash}` });
     } catch (e: any) {
-      console.error(e);
-      addToast({ type: "failed", message: e.message });
+      const err = e as AppError;
+      addToast({ type: "failed", message: err.userMessage || e.message || MSG.ERROR.UNKNOWN });
     } finally {
       setIsSending(false);
     }
@@ -159,31 +164,35 @@ const Home = (): ReactElement => {
       <h1 className="mt-8 mb-8 font-bold text-center text-header">Request to Gno.land via Adena wallet</h1>
       <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
         {/* Card 1: Wallet 연결 */}
-        <TitleCard title="Connect Adena Wallet">
+        <TitleCard title={MSG.UI.CONNECT_WALLET}>
           <ReactButton disabled={isWalletConnected} onClick={handleConnect}>
-            {isWalletConnected ? "Connected" : "Connect"}
+            {isWalletConnected ? MSG.UI.CONNECTED : MSG.UI.CONNECT}
           </ReactButton>
         </TitleCard>
 
         {/* Card 2: 주소 조회 */}
-        <TitleCard title="Get Gno.land Address">
+        <TitleCard title={MSG.UI.GET_ADDRESS}>
           <ReactButton disabled={!isWalletConnected || isLoadingAddress} onClick={handleGetAddress}>
-            {isLoadingAddress ? "Loading..." : "Get Address"}
+            {isLoadingAddress ? MSG.UI.SENDING : MSG.UI.GET_ADDRESS}
           </ReactButton>
-          <div className="mt-2 font-semibold text-left text-body">Address: {address || "-"}</div>
+          <div className="mt-2 font-semibold text-left text-body">
+            {MSG.UI.ADDRESS} {address || "-"}
+          </div>
         </TitleCard>
 
         {/* Card 3: 잔고 조회 */}
-        <TitleCard title="Get Balance">
+        <TitleCard title={MSG.UI.GET_BALANCE}>
           <ReactButton disabled={!isWalletConnected || isLoadingBalance} onClick={handleGetBalance}>
-            {isLoadingBalance ? "Loading..." : "Get Balance"}
+            {isLoadingBalance ? MSG.UI.SENDING : MSG.UI.GET_BALANCE}
           </ReactButton>
-          <div className="mt-2 font-semibold text-left text-body">Balance: {formattedBalance}</div>
+          <div className="mt-2 font-semibold text-left text-body">
+            {MSG.UI.BALANCE} {formattedBalance}
+          </div>
         </TitleCard>
 
         {/* Card 4: GNOT 전송 */}
-        <TitleCard title="Send GNOT">
-          <label className="block mb-1 font-semibold text-left text-body">Recipient:</label>
+        <TitleCard title={MSG.UI.SEND}>
+          <label className="block mb-1 font-semibold text-left text-body">{MSG.UI.RECIPIENT}</label>
           <BasicInput
             placeholder="g1..."
             disabled={!isWalletConnected}
@@ -192,7 +201,7 @@ const Home = (): ReactElement => {
           />
 
           <Gap h={2} />
-          <label className="block mb-1 font-semibold text-left text-body">Amount:</label>
+          <label className="block mb-1 font-semibold text-left text-body">{MSG.UI.AMOUNT}</label>
           <BasicInput
             placeholder="1000000"
             disabled={!isWalletConnected}
@@ -202,7 +211,7 @@ const Home = (): ReactElement => {
 
           <Gap h={4} />
           <ReactButton disabled={!isWalletConnected || isSending} onClick={handleSend}>
-            {isSending ? "Sending..." : "Send"}
+            {isSending ? MSG.UI.SENDING : MSG.UI.SEND}
           </ReactButton>
         </TitleCard>
       </div>
