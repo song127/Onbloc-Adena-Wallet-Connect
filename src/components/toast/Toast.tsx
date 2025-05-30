@@ -21,20 +21,8 @@ const toastContainer = tv({
       success: "bg-success text-white",
       failed: "bg-error text-white",
     },
-    customType: {
-      success: "",
-      failed: "",
-    },
-    isCustom: {
-      true: "",
-      false: "",
-    },
   },
-  compoundVariants: [
-    { design: "custom", type: "success", class: "bg-success text-white" },
-    { design: "custom", type: "failed", class: "bg-error text-white" },
-    { design: "basic", class: "bg-white border border-black" },
-  ],
+  compoundVariants: [{ design: "basic", class: "bg-white border border-black" }],
 });
 
 const toastTitle = tv({
