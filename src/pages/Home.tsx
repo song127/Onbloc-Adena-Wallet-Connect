@@ -2,7 +2,7 @@
  * @file Home.tsx
  * @desc Adena Wallet 연동 및 Gno.land 토큰 전송 메인 페이지
  */
-import { useMemo, useCallback, type ReactElement } from "react";
+import { useCallback, type ReactElement } from "react";
 
 import TitleCard from "@/components/common/TitleCard";
 import ReactButton from "@/components/common/ReacButton";
