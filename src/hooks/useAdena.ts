@@ -210,7 +210,7 @@ export function useAdena() {
         if (e.code === ErrorCode.TX_FAILED) {
           throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, e?.message || MSG.ERROR.TX_FAILED, e);
         } else {
-          throw createAppError(ErrorCode.SEND_FAILED, MSG.ERROR.SEND_FAILED, e?.message || MSG.ERROR.SEND_FAILED, e);
+          throw createAppError(ErrorCode.TX_FAILED, `${MSG.UI.TX_HASH} -`, e?.message || MSG.ERROR.SEND_FAILED, e);
         }
       }
     },
