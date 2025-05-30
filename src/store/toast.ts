@@ -13,6 +13,8 @@ import { TOAST_CONFIG } from "@/constants/config";
  */
 export type ToastType = "success" | "failed";
 
+export type ToastDesign = "basic" | "custom";
+
 /**
  * Toast - 단일 토스트 객체
  * @property {string} id - 고유 ID
@@ -32,18 +34,21 @@ export interface Toast {
 /**
  * ToastState - 토스트 상태 및 조작 함수
  * @property {Toast[]} toasts - 현재 표시 중인 토스트 배열
+ * @property {ToastDesign} toastDesign - 토스트 디자인 타입
  * @property {function} addToast - 토스트 추가(자동 ID, 3초 후 자동 퇴장)
  * @property {function} removeToast - 토스트 퇴장(애니메이션 후 제거)
  * @property {function} clear - 모든 토스트 일괄 퇴장
  */
 interface ToastState {
   toasts: Toast[];
+  toastDesign: ToastDesign;
 }
 
 /**
  * ToastActions - 토스트 조작 함수
  */
 interface ToastActions {
+  setToastDesign: (design: "basic" | "custom") => void;
   addToast: (toast: Omit<Toast, "id" | "isLeaving">) => void;
   removeToast: (id: string) => void;
   clear: () => void;
@@ -54,6 +59,10 @@ interface ToastActions {
  */
 const toastSlice: StateCreator<ToastState & ToastActions> = (set, get) => ({
   toasts: [],
+  toastDesign: "basic",
+  setToastDesign: (design) => {
+    set({ toastDesign: design });
+  },
   addToast: (toast) => {
     const id = Math.random().toString(36).slice(2, 10);
     const newToast = { ...toast, id, isLeaving: false };

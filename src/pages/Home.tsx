@@ -3,12 +3,12 @@
  * @desc Adena Wallet 연동 및 Gno.land 토큰 전송 메인 페이지
  */
 import { useCallback, type ReactElement } from "react";
+import { useToastStore } from "@/store/toast";
 
 import TitleCard from "@/components/common/TitleCard";
 import ReactButton from "@/components/common/ReacButton";
 import { useWalletStore } from "@/store/wallet";
 import { useTransferStore } from "@/store/transfer";
-import { useToastStore } from "@/store/toast";
 import { useAdena } from "@/hooks/useAdena";
 import Gap from "@/components/util/Gap";
 import BasicInput from "@/components/common/BasicInput";
@@ -41,6 +41,8 @@ const Home = (): ReactElement => {
     setSending: setIsSending,
   } = useTransferStore();
   const { addToast } = useToastStore();
+  const toastDesign = useToastStore((s) => s.toastDesign);
+  const setToastDesign = useToastStore((s) => s.setToastDesign);
   const { connect, getAddress, getBalance, sendTokens, isLoading } = useAdena();
 
   /**
@@ -155,6 +157,11 @@ const Home = (): ReactElement => {
     [setSendAmount],
   );
 
+  // Toast 디자인 토글 핸들러
+  const handleToggleToastDesign = useCallback(() => {
+    setToastDesign(toastDesign === "basic" ? "custom" : "basic");
+  }, [toastDesign, setToastDesign]);
+
   if (isLoading) {
     return (
       <main className="flex flex-col items-center min-h-screen bg-white">
@@ -165,6 +172,15 @@ const Home = (): ReactElement => {
 
   return (
     <main className="flex flex-col items-center min-h-screen bg-white">
+      {/* Toast 디자인 토글 버튼 */}
+      <div className="flex justify-end w-full pr-8 mt-4">
+        <button
+          className="px-4 py-2 mr-2 font-semibold text-white transition border rounded bg-success border-success hover:opacity-50"
+          onClick={handleToggleToastDesign}
+        >
+          Toast 디자인: {toastDesign === "basic" ? "Basic" : "Custom"}
+        </button>
+      </div>
       <h1 className="mt-8 mb-8 font-bold text-center text-header">Request to Gno.land via Adena wallet</h1>
       <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
         {/* Card 1: Wallet 연결 */}
