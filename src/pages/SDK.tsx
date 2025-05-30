@@ -4,12 +4,12 @@
  */
 import type { ReactElement } from "react";
 
-const Dashboard = (): ReactElement => {
+const SDK = (): ReactElement => {
   return (
     <main className="flex items-center justify-center min-h-screen">
-      <h1 className="font-bold text-header">Dashboard (준비중)</h1>
+      <h1 className="font-bold text-header">SDK</h1>
     </main>
   );
 };
 
-export default Dashboard;
+export default SDK;

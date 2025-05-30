@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "@/pages/Home";
-import Dashboard from "@/pages/Dashboard";
+import SDK from "@/pages/SDK";
 import { ToastManager } from "@/components/toast/ToastManager";
 
 const App: React.FC = () => {
@@ -10,7 +10,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/sdk" element={<SDK />} />
       </Routes>
       <ToastManager />
     </BrowserRouter>
