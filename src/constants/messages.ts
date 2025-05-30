@@ -4,6 +4,7 @@ export const MSG = {
     ADENA_NOT_INSTALLED: "Adena Wallet is not installed",
     NETWORK_FETCH_FAILED: "Failed to fetch network information",
     ACCOUNT_FETCH_FAILED: "Failed to fetch account information",
+    SEND_FAILED: "Failed to send GNOT",
     TX_FAILED: "Transaction Failed",
     UNKNOWN: "An unknown error occurred",
     FIELDS_REQUIRED: "All fields are required",

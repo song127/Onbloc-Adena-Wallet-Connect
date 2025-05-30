@@ -13,7 +13,7 @@ import { useAdena } from "@/hooks/useAdena";
 import Gap from "@/components/util/Gap";
 import BasicInput from "@/components/common/BasicInput";
 import Spinner from "@/components/common/Spinner";
-import type { AppError } from "@/types/AppError";
+import { ErrorCode, type AppError } from "@/types/AppError";
 import { MSG } from "@/constants/messages";
 
 /**
@@ -127,7 +127,7 @@ const Home = (): ReactElement => {
       const err = e as AppError;
       addToast({
         type: "failed",
-        title: MSG.ERROR.TX_FAILED,
+        title: err.code === ErrorCode.TX_FAILED ? MSG.ERROR.TX_FAILED : undefined,
         message: err.userMessage || e.message || MSG.ERROR.UNKNOWN,
       });
     } finally {

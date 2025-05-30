@@ -25,7 +25,7 @@ export interface AdenaAccount {
  * @param res - Adena 응답 객체
  * @returns {boolean}
  */
-const checkResponse = (res: any): boolean => {
+const checkResponseSuccess = (res: any): boolean => {
   return res && res.data && res.code === 0;
 };
 
@@ -63,7 +63,7 @@ export function useAdena() {
   const getNetwork = useCallback(async (): Promise<{ chainId: string }> => {
     const adena = getAdena();
     const res = await adena.GetNetwork();
-    if (!checkResponse(res) || !res.data.chainId)
+    if (!checkResponseSuccess(res) || !res.data.chainId)
       throw createAppError(ErrorCode.NETWORK_ERROR, MSG.ERROR.NETWORK_FETCH_FAILED, MSG.ERROR.NETWORK_FETCH_FAILED);
     return { chainId: res.data.chainId };
   }, []);
@@ -106,7 +106,7 @@ export function useAdena() {
     const adena = getAdena();
     // 1. Establish
     const establishRes = await adena.AddEstablish("Adena");
-    if (checkResponse(establishRes)) {
+    if (checkResponseSuccess(establishRes)) {
       setIsConnected(true);
       setIsWalletConnected(true);
     } else if (typeof establishRes.message === "string" && establishRes.message.toLowerCase().includes("already")) {
@@ -141,7 +141,7 @@ export function useAdena() {
   const getAccount = useCallback(async (): Promise<AdenaAccount> => {
     const adena = getAdena();
     const res = await adena.GetAccount();
-    if (!checkResponse(res) || !res.data.address || !res.data.coins)
+    if (!checkResponseSuccess(res) || !res.data.address || !res.data.coins)
       throw createAppError(ErrorCode.NETWORK_ERROR, MSG.ERROR.ACCOUNT_FETCH_FAILED, MSG.ERROR.ACCOUNT_FETCH_FAILED);
     return { address: res.data.address, coins: res.data.coins.replace("ugnot", "") };
   }, []);
@@ -175,7 +175,6 @@ export function useAdena() {
   const sendTokens = useCallback(
     async (from: string, to: string, amount: string | number): Promise<{ txHash: string }> => {
       const adena = getAdena();
-      // GNOT → ugnot 변환 (1 GNOT = 1,000,000 ugnot)
       const microAmount = Math.floor(Number(amount) * 1_000_000).toString();
       try {
         const res = await adena.DoContract({
@@ -191,12 +190,28 @@ export function useAdena() {
           ],
         });
 
-        if (!checkResponse(res) || !res.data.hash)
-          throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, res?.message || MSG.ERROR.TX_FAILED);
-        return { txHash: res.data.hash };
+        // 성공: code === 0 && hash 있음
+        if (checkResponseSuccess(res) && res.data.hash) {
+          return { txHash: res.data.hash };
+        }
+
+        // TX 실패: code !== 0 && hash 있음
+        if (!checkResponseSuccess(res) && res.data.hash) {
+          throw createAppError(
+            ErrorCode.TX_FAILED,
+            `${MSG.UI.TX_HASH} ${res.data.hash}`,
+            res?.message || MSG.ERROR.TX_FAILED,
+          );
+        }
+
+        // 일반 실패: code !== 0 && hash 없음
+        throw createAppError(ErrorCode.SEND_FAILED, MSG.ERROR.SEND_FAILED, res?.message || MSG.ERROR.SEND_FAILED);
       } catch (e: any) {
-        console.log(e);
-        throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, e?.message || MSG.ERROR.TX_FAILED, e);
+        if (e.code === ErrorCode.TX_FAILED) {
+          throw createAppError(ErrorCode.TX_FAILED, MSG.ERROR.TX_FAILED, e?.message || MSG.ERROR.TX_FAILED, e);
+        } else {
+          throw createAppError(ErrorCode.SEND_FAILED, MSG.ERROR.SEND_FAILED, e?.message || MSG.ERROR.SEND_FAILED, e);
+        }
       }
     },
     [],
