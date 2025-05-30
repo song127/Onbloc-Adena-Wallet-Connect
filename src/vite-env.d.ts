@@ -1,5 +1,9 @@
 /// <reference types="vite/client" />
 
-interface Window {
-  adena?: any;
+declare global {
+  interface Window {
+    adena: any;
+  }
 }
+
+export {};
