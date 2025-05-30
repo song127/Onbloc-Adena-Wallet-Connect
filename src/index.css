@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PRD: 기본 폰트, 배경, 텍스트 컬러만 지정 */
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  background-color: #f2f2f6;
+  color: #213547;
+}
