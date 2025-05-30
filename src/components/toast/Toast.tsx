@@ -11,7 +11,7 @@ import { useToastStore } from "@/store/toast";
 import type { Toast as ToastType } from "@/store/toast";
 
 const toastContainer = tv({
-  base: "flex flex-col items-start gap-2 px-4 py-3 rounded shadow-toast mb-2 min-w-[250px] max-w-fit transition-all duration-300 max-h-[120px] overflow-hidden font-medium",
+  base: "flex flex-col items-start gap-2 p-2.5 rounded shadow-toast mb-2 min-w-[250px] max-w-fit transition-all duration-300 max-h-fit overflow-hidden font-medium",
   variants: {
     design: {
       basic: "bg-white border-2 border-borderCard border-solid",
