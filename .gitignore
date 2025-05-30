@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 PRD.md
+.cursor/*
 
 # Editor directories and files
 .vscode/*
@@ -23,4 +24,3 @@ PRD.md
 *.njsproj
 *.sln
 *.sw?
-.cursor/*
