@@ -1,3 +1,7 @@
+/**
+ * @file colors.ts
+ * @desc 디자인 토큰/테마 색상 정의, config에 적용, className이 아닌 색상 필요시 사용을 목적으로 함
+ */
 export const COLORS = {
   primary: "#2c4be2",
   disabled: "#808080",
