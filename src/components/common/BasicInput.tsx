@@ -3,7 +3,9 @@
  * @desc 공통 인풋 컴포넌트(상태/이벤트/placeholder)
  */
 import type { ReactElement, ChangeEvent } from "react";
-import { useRef, useLayoutEffect, useState } from "react";
+import { useRef, useLayoutEffect, useState, useCallback } from "react";
+import { tv } from "tailwind-variants";
+import { twMerge } from "tailwind-merge";
 
 /**
  * BasicInputProps - 인풋 props
@@ -21,84 +23,138 @@ interface BasicInputProps {
   type?: "string" | "number";
 }
 
+// tailwind-variants: 스타일 분리
+const inputVariants = tv({
+  base: "font-semibold text-black bg-transparent border-none outline-none text-input",
+  variants: {
+    type: {
+      string: "w-full px-2 py-3 border-2 border-black border-solid rounded-input text-input",
+      number: "flex-shrink-0 p-0 m-0",
+    },
+    disabled: {
+      true: "opacity-disabled cursor-not-allowed",
+      false: "",
+    },
+  },
+  defaultVariants: {
+    type: "string",
+    disabled: false,
+  },
+});
+
+const backboardVariants = tv({
+  base: "flex items-center w-full px-2 py-3 transition-none bg-white border-2 border-black border-solid rounded-input cursor-text min-h-[40px] overflow-hidden",
+  variants: {
+    disabled: {
+      true: "opacity-disabled cursor-not-allowed",
+      false: "",
+    },
+  },
+  defaultVariants: {
+    disabled: false,
+  },
+});
+
 /**
  * BasicInput - 공통 인풋
  * @param {BasicInputProps} props
  */
 const BasicInput = ({ placeholder, disabled, value, onChange, type = "string" }: BasicInputProps): ReactElement => {
+  const backboardRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mirrorRef = useRef<HTMLSpanElement>(null);
   const unitRef = useRef<HTMLSpanElement>(null);
-  const [valueWidth, setValueWidth] = useState(0);
-  const [unitWidth, setUnitWidth] = useState(0);
-  const [inputWidth, setInputWidth] = useState(0);
+  const [inputWidth, setInputWidth] = useState<number>(0);
+  const [unitWidth, setUnitWidth] = useState<number>(0);
+  const [backboardWidth, setBackboardWidth] = useState<number>(0);
 
+  // width 측정 최적화
   useLayoutEffect(() => {
-    if (mirrorRef.current) {
-      setValueWidth(mirrorRef.current.offsetWidth);
-    }
-    if (unitRef.current) {
-      setUnitWidth(unitRef.current.offsetWidth);
-    }
+    if (type !== "number") return;
+    if (mirrorRef.current) setInputWidth(value ? mirrorRef.current.offsetWidth : 2);
+    if (unitRef.current) setUnitWidth(unitRef.current.offsetWidth);
+    if (backboardRef.current) setBackboardWidth(backboardRef.current.offsetWidth);
+  }, [value, placeholder, type]);
+
+  // backboard 클릭 시 input 맨 뒤로 포커스
+  const handleBackboardClick = useCallback(() => {
     if (inputRef.current) {
-      setInputWidth(inputRef.current.offsetWidth);
+      inputRef.current.focus();
+      const len = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(len, len);
     }
-  }, [value, placeholder]);
+  }, []);
 
-  // input padding left/right (px-2 = 0.5rem = 8px)
-  const paddingRight = type === "number" ? 64 : 8; // pr-16 = 4rem = 64px, else px-2 = 8px
-  const minUnitGap = 0; // 또는 -1, -2 등
-  const unitLeft = 24 + valueWidth + minUnitGap;
-  const shouldFixRight = type === "number" && unitLeft + unitWidth + paddingRight > inputWidth;
-
-  return (
-    <div className="relative w-full">
-      <input
-        ref={inputRef}
-        className={`w-full px-2 py-3 font-semibold text-black border-2 border-black border-solid rounded-input text-input ${type === "number" ? "pr-16" : ""}`}
-        placeholder={placeholder}
-        disabled={disabled}
-        value={value}
-        onChange={onChange}
-        type={type === "number" ? "number" : "text"}
-        inputMode={type === "number" ? "numeric" : undefined}
-        autoComplete="off"
-        style={{ position: "relative", background: "transparent" }}
-      />
-      {/* mirror span: padding/border 없이 value만 측정 */}
-      {type === "number" && (
+  // number 타입: width clamp, 단위 표시
+  if (type === "number") {
+    const maxInputWidth = backboardWidth && unitWidth ? Math.max(backboardWidth - unitWidth - 40, 20) : 240;
+    return (
+      <div ref={backboardRef} className={twMerge(backboardVariants({ disabled }))} onClick={handleBackboardClick}>
+        <input
+          ref={inputRef}
+          className={twMerge(inputVariants({ type: "number", disabled }))}
+          placeholder={placeholder}
+          disabled={disabled}
+          value={value}
+          onChange={onChange}
+          type="number"
+          inputMode="numeric"
+          autoComplete="off"
+          style={{
+            width: inputWidth,
+            minWidth: 0,
+            maxWidth: maxInputWidth,
+            color: "black",
+            background: "transparent",
+          }}
+        />
+        {value && (
+          <span
+            ref={unitRef}
+            className="flex-shrink-0 ml-2 font-semibold text-black pointer-events-none select-none text-input"
+            aria-hidden="true"
+          >
+            ugnot
+          </span>
+        )}
+        {/* mirror span: value width 측정용, 숨김 */}
         <span
           ref={mirrorRef}
-          className="absolute invisible whitespace-pre"
+          className="absolute invisible p-0 m-0 font-semibold whitespace-pre border-none outline-none text-input"
           aria-hidden="true"
           style={{
             fontSize: "12px",
             fontFamily: "inherit",
-            fontWeight: "inherit",
+            fontWeight: "bold",
             left: 0,
             top: 0,
             pointerEvents: "none",
+            boxSizing: "border-box",
+            padding: 0,
+            margin: 0,
+            border: "none",
+            outline: "none",
           }}
         >
-          {value}
+          {value || placeholder || "0"}
         </span>
-      )}
-      {/* 단위 표시 */}
-      {type === "number" && value && (
-        <span
-          ref={unitRef}
-          className="absolute font-semibold text-black bg-white pointer-events-none select-none top-1/2 text-input"
-          style={
-            shouldFixRight
-              ? { right: 12, transform: "translateY(-50%)" }
-              : { left: unitLeft, transform: "translateY(-50%)" }
-          }
-          aria-hidden="true"
-        >
-          ugnot
-        </span>
-      )}
-    </div>
+      </div>
+    );
+  }
+
+  // string 타입 등 기존 100% width
+  return (
+    <input
+      ref={inputRef}
+      className={twMerge(inputVariants({ type: "string", disabled }))}
+      placeholder={placeholder}
+      disabled={disabled}
+      value={value}
+      onChange={onChange}
+      type="text"
+      autoComplete="off"
+      style={{ background: "transparent", position: "relative" }}
+    />
   );
 };
 
