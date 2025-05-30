@@ -3,9 +3,10 @@
  * @file toast.ts
  * @desc 전역 토스트(알림) 상태(Zustand slice, selector/미들웨어/분리 패턴 적용)
  */
-import { TOAST_CONFIG } from "@/constants/config";
 import { create, type StateCreator } from "zustand";
 import { devtools } from "zustand/middleware";
+
+import { TOAST_CONFIG } from "@/constants/config";
 
 /**
  * ToastType - 토스트 타입(성공/실패)
