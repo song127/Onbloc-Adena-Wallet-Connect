@@ -206,7 +206,11 @@ export function useAdena() {
         clearInterval(interval);
       } else {
         tries++;
-        if (tries > 5) clearInterval(interval);
+        if (tries > 5) {
+          clearInterval(interval);
+          setIsLoading(false);
+          alert("Adena Wallet not installed");
+        }
       }
     }, 10);
     return () => clearInterval(interval);
@@ -218,7 +222,9 @@ export function useAdena() {
 
     let cancelled = false;
     const adena = window.adena;
-    if (!adena) return;
+    if (!adena) {
+      return;
+    }
 
     // 연결/계정/네트워크 정보 동기화
     const checkAll = async () => {
