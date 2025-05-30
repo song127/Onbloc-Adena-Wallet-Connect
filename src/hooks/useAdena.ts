@@ -175,7 +175,7 @@ export function useAdena() {
   const sendTokens = useCallback(
     async (from: string, to: string, amount: string | number): Promise<{ txHash: string }> => {
       const adena = getAdena();
-      const microAmount = Math.floor(Number(amount) * 1_000_000).toString();
+      // const microAmount = Math.floor(Number(amount) * 1_000_000).toString();
       try {
         const res = await adena.DoContract({
           messages: [
@@ -184,7 +184,7 @@ export function useAdena() {
               value: {
                 from_address: from,
                 to_address: to,
-                amount: `${microAmount}ugnot`,
+                amount: `${amount}ugnot`,
               },
             },
           ],

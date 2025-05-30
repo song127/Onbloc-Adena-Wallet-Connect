@@ -46,12 +46,12 @@ const Home = (): ReactElement => {
   /**
    * 잔고 포맷팅 (gnot 단위)
    */
-  const formattedBalance = useMemo((): string => {
-    if (!balance) return "-";
-    // TODO: BigNumber.js 적용 권장
-    const float = Number(balance) / 1_000_000;
-    return `${float.toFixed(4)} gnot`;
-  }, [balance]);
+  // const formattedBalance = useMemo((): string => {
+  //   if (!balance) return "-";
+  //   // TODO: BigNumber.js 적용 권장
+  //   const float = Number(balance) / 1_000_000;
+  //   return `${float.toFixed(4)} gnot`;
+  // }, [balance]);
 
   /**
    * Adena Wallet 연결 핸들러
@@ -175,9 +175,9 @@ const Home = (): ReactElement => {
         </TitleCard>
 
         {/* Card 2: 주소 조회 */}
-        <TitleCard title={MSG.UI.GET_ADDRESS}>
+        <TitleCard title={MSG.UI.GET_ADDRESS_TITLE}>
           <ReactButton disabled={!isWalletConnected || isLoadingAddress} onClick={handleGetAddress}>
-            {isLoadingAddress ? MSG.UI.SENDING : MSG.UI.GET_ADDRESS}
+            {isLoadingAddress ? MSG.UI.LOADING : MSG.UI.GET_ADDRESS_BUTTON}
           </ReactButton>
           <div className="mt-2 font-semibold text-left text-body">
             {MSG.UI.ADDRESS} {address || "-"}
@@ -187,35 +187,31 @@ const Home = (): ReactElement => {
         {/* Card 3: 잔고 조회 */}
         <TitleCard title={MSG.UI.GET_BALANCE}>
           <ReactButton disabled={!isWalletConnected || isLoadingBalance} onClick={handleGetBalance}>
-            {isLoadingBalance ? MSG.UI.SENDING : MSG.UI.GET_BALANCE}
+            {isLoadingBalance ? MSG.UI.LOADING : MSG.UI.GET_BALANCE}
           </ReactButton>
           <div className="mt-2 font-semibold text-left text-body">
-            {MSG.UI.BALANCE} {formattedBalance}
+            {MSG.UI.BALANCE} {balance} {balance ? "ugnot" : ""}
           </div>
         </TitleCard>
 
         {/* Card 4: GNOT 전송 */}
-        <TitleCard title={MSG.UI.SEND}>
+        <TitleCard title={MSG.UI.SEND_TITLE}>
           <label className="block mb-1 font-semibold text-left text-body">{MSG.UI.RECIPIENT}</label>
-          <BasicInput
-            placeholder="g1..."
-            disabled={!isWalletConnected}
-            value={recipient}
-            onChange={handleRecipientChange}
-          />
+          <BasicInput placeholder="" disabled={!isWalletConnected} value={recipient} onChange={handleRecipientChange} />
 
           <Gap h={2} />
           <label className="block mb-1 font-semibold text-left text-body">{MSG.UI.AMOUNT}</label>
           <BasicInput
-            placeholder="1000000"
+            placeholder=""
             disabled={!isWalletConnected}
             value={sendAmount}
             onChange={handleAmountChange}
+            type="number"
           />
 
           <Gap h={4} />
           <ReactButton disabled={!isWalletConnected || isSending} onClick={handleSend}>
-            {isSending ? MSG.UI.SENDING : MSG.UI.SEND}
+            {isSending ? MSG.UI.SENDING : MSG.UI.SEND_BUTTON}
           </ReactButton>
         </TitleCard>
       </div>
