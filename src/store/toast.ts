@@ -3,15 +3,9 @@
  * @file toast.ts
  * @desc 전역 토스트(알림) 상태(Zustand slice, selector/미들웨어/분리 패턴 적용)
  */
+import { TOAST_CONFIG } from "@/config";
 import { create, type StateCreator } from "zustand";
 import { devtools } from "zustand/middleware";
-
-/**
- * Toast 관련 상수
- */
-const MAX_TOASTS = 3;
-const TOAST_DURATION = 3000;
-const TOAST_ANIMATION_DURATION = 450;
 
 /**
  * ToastType - 토스트 타입(성공/실패)
@@ -62,11 +56,11 @@ const toastSlice: StateCreator<ToastState & ToastActions> = (set, get) => ({
   addToast: (toast) => {
     const id = Math.random().toString(36).slice(2, 10);
     const newToast = { ...toast, id, isLeaving: false };
-    const toasts = [...get().toasts, newToast].slice(-MAX_TOASTS);
+    const toasts = [...get().toasts, newToast].slice(-TOAST_CONFIG.MAX_TOASTS);
     set({ toasts });
     setTimeout(() => {
       get().removeToast(id);
-    }, TOAST_DURATION);
+    }, TOAST_CONFIG.TOAST_DURATION);
   },
   removeToast: (id) => {
     set((state) => ({
@@ -76,7 +70,7 @@ const toastSlice: StateCreator<ToastState & ToastActions> = (set, get) => ({
       set((state) => ({
         toasts: state.toasts.filter((t) => t.id !== id),
       }));
-    }, TOAST_ANIMATION_DURATION);
+    }, TOAST_CONFIG.TOAST_ANIMATION_DURATION);
   },
   clear: () => {
     set((state) => ({
@@ -84,7 +78,7 @@ const toastSlice: StateCreator<ToastState & ToastActions> = (set, get) => ({
     }));
     setTimeout(() => {
       set({ toasts: [] });
-    }, TOAST_ANIMATION_DURATION);
+    }, TOAST_CONFIG.TOAST_ANIMATION_DURATION);
   },
 });
 

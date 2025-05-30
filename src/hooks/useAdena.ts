@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 import { useWalletStore } from "@/store/wallet";
+import { PORTAL_LOOP_NETWORK_CONFIG } from "@/config";
 
 /**
  * AdenaAccount - Adena 계정 정보
@@ -16,11 +17,6 @@ export interface AdenaAccount {
   address: string;
   coins: string;
 }
-
-// Portal Loop 네트워크 상수
-const PORTAL_LOOP_CHAIN_ID = "portal-loop";
-const PORTAL_LOOP_CHAIN_NAME = "portal-loop";
-const PORTAL_LOOP_RPC_URL = "https://rpc.gno.land:443";
 
 /**
  * Adena Wallet 응답 유효성 검사
@@ -50,7 +46,6 @@ export function useAdena() {
 
   /**
    * window.adena 객체 반환
-   * @returns {any}
    */
   const getAdena = () => window.adena;
 
@@ -88,9 +83,9 @@ export function useAdena() {
     const adena = getAdena();
     if (!adena) throw new Error("Adena Wallet not installed");
     await adena.AddNetwork({
-      chainId: PORTAL_LOOP_CHAIN_ID,
-      chainName: PORTAL_LOOP_CHAIN_NAME,
-      rpcUrl: PORTAL_LOOP_RPC_URL,
+      chainId: PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID,
+      chainName: PORTAL_LOOP_NETWORK_CONFIG.CHAIN_NAME,
+      rpcUrl: PORTAL_LOOP_NETWORK_CONFIG.RPC_URL,
     });
   }, []);
 
@@ -116,12 +111,12 @@ export function useAdena() {
     }
     // 2. 네트워크 확인/전환
     const network = await getNetwork();
-    if (network.chainId !== PORTAL_LOOP_CHAIN_ID) {
+    if (network.chainId !== PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID) {
       try {
-        await switchNetwork(PORTAL_LOOP_CHAIN_ID);
+        await switchNetwork(PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID);
       } catch (_) {
         await addNetwork();
-        await switchNetwork(PORTAL_LOOP_CHAIN_ID);
+        await switchNetwork(PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID);
       }
     }
     return establishRes;
@@ -253,7 +248,7 @@ export function useAdena() {
           setIsConnected(connected);
           setIsWalletConnected(connected);
 
-          if (connected && net && net.chainId === PORTAL_LOOP_CHAIN_ID) {
+          if (connected && net && net.chainId === PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID) {
             setAccount(acc);
             setAddress(acc?.address ?? null);
             setBalance(acc?.coins ?? null);
@@ -304,7 +299,7 @@ export function useAdena() {
         setIsLoading(true);
         const net = await getNetwork();
         setNetwork(net);
-        if (net.chainId === PORTAL_LOOP_CHAIN_ID) {
+        if (net.chainId === PORTAL_LOOP_NETWORK_CONFIG.CHAIN_ID) {
           setIsConnected(true);
           const acc = await getAccount();
           setAddress(acc?.address ?? null);
