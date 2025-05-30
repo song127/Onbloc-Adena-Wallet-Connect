@@ -3,8 +3,8 @@
  * @desc Adena Wallet 연동 및 Gno.land 토큰 전송 메인 페이지
  */
 import { useCallback, type ReactElement } from "react";
-import { useToastStore } from "@/store/toast";
 
+import { useToastStore } from "@/store/toast";
 import TitleCard from "@/components/common/TitleCard";
 import ReactButton from "@/components/common/ReacButton";
 import { useWalletStore } from "@/store/wallet";
