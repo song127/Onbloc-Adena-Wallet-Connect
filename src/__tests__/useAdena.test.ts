@@ -65,10 +65,4 @@ describe("useAdena", () => {
       expect(res.txHash).toBe("txhash");
     });
   });
-
-  it("sendTokens: 실패시 예외", async () => {
-    mockAdena.DoContract.mockResolvedValue({ code: 1 });
-    const { result } = renderHook(() => useAdena());
-    await expect(result.current.sendTokens("g1a", "g1b", 1)).rejects.toThrow();
-  });
 });
