@@ -5,7 +5,6 @@
 - Gno.land 네트워크 기반 MVP SPA
 - Adena Wallet 연동, 주소/잔액 조회, GNOT 전송, Toast 알림 등 주요 기능 제공
 - React + TypeScript + Zustand + TailwindCSS + Vite 기반
-- **과제 제출용**: 리뷰어가 빠르게 구조/품질/기능을 파악할 수 있도록 설계
 
 ## 2. 기술 스택 및 주요 라이브러리
 
@@ -39,7 +38,6 @@ src/
 - **주소/잔액 조회**: Gno.land 계정 주소 및 GNOT 잔액 조회
 - **GNOT 전송**: 지정 주소로 GNOT 송금
 - **Toast 알림**: 성공/실패 등 주요 이벤트 알림
-- **SPA 구조**: Home(메인), Dashboard(서브) 페이지
 
 ## 5. 실행 및 테스트 방법
 
@@ -60,4 +58,3 @@ pnpm format      # 포맷 검사
 - **테스트**: 핵심 로직 단위 테스트(커스텀 훅, 상태, Toast 등)
 - **코드 스타일**: ESLint, Prettier, TailwindCSS 일관성
 - **주석/문서화**: 함수/모듈별 Docstring, 주요 로직 설명
-- **최신 React 패턴**: useCallback, useMemo, 함수형 컴포넌트, 불필요한 re-render 방지
