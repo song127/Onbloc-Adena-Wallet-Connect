@@ -2,13 +2,16 @@ import path from "path";
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+import stdLibBrowser from "node-stdlib-browser";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), nodePolyfills({ protocolImports: true })],
   // 절대 경로 지정
   resolve: {
     alias: {
+      ...stdLibBrowser,
       "@": path.resolve(__dirname, "./src"),
       "@/components": path.resolve(__dirname, "./src/components"),
       "@/pages": path.resolve(__dirname, "./src/pages"),
@@ -31,5 +34,8 @@ export default defineConfig({
   preview: {
     port: 4173,
     open: true,
+  },
+  define: {
+    "process.env": {},
   },
 });
